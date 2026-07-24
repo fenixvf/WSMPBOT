@@ -46,25 +46,33 @@ export async function deployCommands(): Promise<void> {
   const rest = new REST().setToken(token);
   const commandsJson = commands.map((c) => c.toJSON());
 
+  // Try guild commands first (instant) — needs bot in guild with applications.commands scope
   try {
     await rest.put(Routes.applicationGuildCommands(clientId, guildId), {
       body: commandsJson,
     });
     logger.info(
-      { count: commands.length },
-      "Slash commands registrados no servidor com sucesso",
+      { count: commands.length, mode: "guild" },
+      "Slash commands registrados no servidor (guild) com sucesso",
     );
+    return;
   } catch (err: unknown) {
     const code = (err as { code?: number }).code;
-    if (code === 50001) {
-      logger.warn(
-        "Bot não está no servidor ou falta o escopo 'applications.commands'.",
-      );
-      logger.warn(
-        `\n\n🔗 CONVIDE O BOT PARA O SEU SERVIDOR usando este link:\n${inviteUrl}\n\nDepois de convidar, reinicie o servidor.\n`,
-      );
-    } else {
-      throw err;
-    }
+    if (code !== 50001) throw err;
+    logger.warn(
+      "Sem acesso para registrar guild commands — tentando global commands...",
+    );
+    logger.warn(
+      `\n\n🔗 Para comandos instantâneos no seu servidor, convide o bot com este link e reinicie:\n${inviteUrl}\n`,
+    );
   }
+
+  // Fallback: global commands (propagation can take up to 1h on first registration)
+  await rest.put(Routes.applicationCommands(clientId), {
+    body: commandsJson,
+  });
+  logger.info(
+    { count: commands.length, mode: "global" },
+    "Slash commands registrados globalmente (pode levar até 1h para aparecer)",
+  );
 }
