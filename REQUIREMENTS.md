@@ -46,7 +46,7 @@ use `BASE_PATH=/` se decidir publicar esse preview como um site estático.
 
 Para publicar a API como um Web Service:
 
-- **Build Command:** `corepack enable && pnpm install --frozen-lockfile && pnpm --filter @workspace/api-server run build`
+- **Build Command:** `pnpm install --frozen-lockfile && pnpm --filter @workspace/api-server run build`
 - **Start Command:** `pnpm --filter @workspace/api-server run start`
 - **Health Check Path:** `/api/healthz`
 - **Environment:** `NODE_ENV=production`, `DATABASE_URL` e `PORT` (o Render normalmente fornece `PORT` automaticamente)
