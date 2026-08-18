@@ -1,0 +1,1 @@
+- [Discord bot on Render](discord-render-worker.md) — use a Background Worker for continuous gateway connectivity; free Web Services may sleep without HTTP traffic.

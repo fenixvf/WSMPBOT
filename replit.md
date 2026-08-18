@@ -35,7 +35,8 @@ Bot Discord para criar, listar, desativar e concluir missões com provas em imag
 
 ## Architecture decisions
 
-- O bot continua iniciando mesmo sem as credenciais do Discord; nesse caso, a API HTTP permanece disponível.
+- O processo pode rodar como Web Service com HTTP ou como Background Worker do Render; sem `PORT`, ele funciona somente como worker do Discord.
+- Em produção, uma falha ao conectar o bot encerra o processo para que o Render reinicie e exiba o erro real.
 - Missões são desativadas com `is_active = false` em vez de apagadas, preservando o histórico de conclusões.
 - O banco é sincronizado pelo schema Drizzle com `pnpm --filter @workspace/db run push`.
 
@@ -53,6 +54,7 @@ _Populate as you build — explicit user instructions worth remembering across s
 
 - O `DATABASE_URL` precisa apontar para o mesmo PostgreSQL usado pelo bot hospedado no Render antes de executar o comando `push`.
 - O bot precisa ter acesso ao servidor e ao canal configurado para publicar conclusões.
+- Para manter o bot sempre online no Render, prefira um Background Worker; Web Services gratuitos podem dormir sem tráfego HTTP.
 
 ## Pointers
 
