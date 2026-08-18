@@ -1,6 +1,6 @@
-# [Project name]
+# Bot de Missões do Discord
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Bot Discord para criar, listar, desativar e concluir missões com provas em imagem.
 
 ## Run & Operate
 
@@ -8,8 +8,9 @@ _Replace the heading above with the project's name, and this line with one sente
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- `pnpm --filter @workspace/db run push` — aplica o schema Drizzle ao PostgreSQL configurado
+- Required env: `DATABASE_URL` — string de conexão do PostgreSQL
+- Discord: `DISCORD_BOT_TOKEN`, `DISCORD_CLIENT_ID` e `DISCORD_GUILD_ID`
 
 ## Stack
 
@@ -22,15 +23,27 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/api-server/src/bot/commands/` — comandos slash do Discord
+- `lib/db/src/schema/` — schema fonte das tabelas do banco
+- `lib/api-spec/` — contrato OpenAPI da API HTTP
+
+### Tabelas do banco
+
+- `missions` — missões criadas pelos moderadores
+- `completions` — provas de conclusão enviadas pelos membros
+- `guild_config` — canal de conclusões configurado por servidor
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- O bot continua iniciando mesmo sem as credenciais do Discord; nesse caso, a API HTTP permanece disponível.
+- Missões são desativadas com `is_active = false` em vez de apagadas, preservando o histórico de conclusões.
+- O banco é sincronizado pelo schema Drizzle com `pnpm --filter @workspace/db run push`.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- Moderadores criam e desativam missões.
+- Membros visualizam missões ativas e enviam uma imagem como prova.
+- Conclusões podem ser publicadas automaticamente em um canal configurado do servidor.
 
 ## User preferences
 
@@ -38,7 +51,8 @@ _Populate as you build — explicit user instructions worth remembering across s
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- O `DATABASE_URL` precisa apontar para o mesmo PostgreSQL usado pelo bot hospedado no Render antes de executar o comando `push`.
+- O bot precisa ter acesso ao servidor e ao canal configurado para publicar conclusões.
 
 ## Pointers
 
